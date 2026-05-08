@@ -60,11 +60,17 @@ class SpeechManager(private val context: Context) {
 
     fun speak(text: String) {
         if (!isTtsReady) return
-        // Strip markdown for natural speech
         val clean = text
-            .replace(Regex("\\*+"), "")
-            .replace(Regex("#+\\s"), "")
-            .replace(Regex("-\\s"), "")
+            .replace(Regex("\\*\\*(.+?)\\*\\*"), "$1")  // **bold** → bold
+            .replace(Regex("\\*(.+?)\\*"), "$1")         // *italic* → italic
+            .replace(Regex("#+\\s*"), "")                // ### headings
+            .replace(Regex("(?m)^[-•*]\\s+"), "")       // bullet points
+            .replace(Regex("(?m)^\\d+\\.\\s+"), "")     // numbered lists
+            .replace(Regex("`+"), "")                    // backticks
+            .replace(Regex("_+"), "")                    // underscores
+            .replace(Regex("\\[(.+?)]\\(.+?\\)"), "$1") // [links](url) → link text
+            .replace(Regex("\\s{2,}"), " ")              // collapse whitespace
+            .trim()
         tts?.speak(clean, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 

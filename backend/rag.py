@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from langchain import hub
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -43,7 +43,12 @@ def build_rag_chain():
     db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embeddings)
     retriever = db.as_retriever(search_kwargs={"k": 4})
 
-    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite", temperature=0.3)
+    llm = ChatOpenAI(
+        model="gemini-2.5-flash",
+        base_url="https://35-207-202-131.sslip.io/v1",
+        api_key="103702299126294911791",
+        temperature=0.3,
+    )
 
     # Pull rlm/rag-prompt from LangChain Hub and extend with Asana persona
     # Replace {question} with {input} to match create_retrieval_chain's variable name

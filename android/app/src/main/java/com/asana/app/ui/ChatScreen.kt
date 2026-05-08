@@ -2,6 +2,10 @@ package com.asana.app.ui
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import coil.compose.AsyncImage
+import coil.decode.SvgDecoder
+import coil.request.ImageRequest
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -209,55 +213,75 @@ fun MessageBubble(message: ChatMessage) {
             Spacer(modifier = Modifier.width(8.dp))
         }
 
-        Box(
-            modifier = Modifier
-                .widthIn(max = 280.dp)
-                .clip(
-                    RoundedCornerShape(
-                        topStart = 16.dp,
-                        topEnd = 16.dp,
-                        bottomStart = if (isUser) 16.dp else 4.dp,
-                        bottomEnd = if (isUser) 4.dp else 16.dp
-                    )
+        Column(horizontalAlignment = if (isUser) Alignment.End else Alignment.Start) {
+            if (!isUser && message.isImageLoading) {
+                val shimmerAlpha by rememberInfiniteTransition(label = "imgShimmer").animateFloat(
+                    initialValue = 0.2f, targetValue = 0.5f,
+                    animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
+                    label = "shimmerAlpha"
                 )
-                .background(if (isUser) UserBubble else AiBubble)
-                .padding(horizontal = 14.dp, vertical = 10.dp)
-        ) {
-            Text(
-                text = message.content,
-                fontSize = 15.sp,
-                color = if (isUser) Color.White else TextPrimary,
-                lineHeight = 22.sp
-            )
+                Box(
+                    modifier = Modifier
+                        .width(220.dp)
+                        .height(150.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(PrimaryPurple.copy(alpha = shimmerAlpha))
+                        .padding(bottom = 6.dp)
+                )
+            } else {
+                message.imageUrl?.let { url ->
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(url)
+                            .decoderFactory(SvgDecoder.Factory())
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Yoga pose illustration",
+                        modifier = Modifier
+                            .widthIn(max = 280.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .padding(bottom = 6.dp)
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .widthIn(max = 280.dp)
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = 16.dp,
+                            topEnd = 16.dp,
+                            bottomStart = if (isUser) 16.dp else 4.dp,
+                            bottomEnd = if (isUser) 4.dp else 16.dp
+                        )
+                    )
+                    .background(if (isUser) UserBubble else AiBubble)
+                    .padding(horizontal = 14.dp, vertical = 10.dp)
+            ) {
+                Text(
+                    text = message.content,
+                    fontSize = 15.sp,
+                    color = if (isUser) Color.White else TextPrimary,
+                    lineHeight = 22.sp
+                )
+            }
         }
     }
 }
 
 @Composable
 fun TypingIndicator() {
-    val infiniteTransition = rememberInfiniteTransition(label = "typing")
-    val alpha by infiniteTransition.animateFloat(
+    val dotAlpha by rememberInfiniteTransition(label = "typing").animateFloat(
         initialValue = 0.3f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(600),
-            repeatMode = RepeatMode.Reverse
-        ),
+        animationSpec = infiniteRepeatable(tween(600), RepeatMode.Reverse),
         label = "dotAlpha"
     )
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start
-    ) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
         Box(
-            modifier = Modifier
-                .size(32.dp)
-                .background(PrimaryPurple, CircleShape),
+            modifier = Modifier.size(32.dp).background(PrimaryPurple, CircleShape),
             contentAlignment = Alignment.Center
-        ) {
-            Text("🧘", fontSize = 14.sp)
-        }
+        ) { Text("🧘", fontSize = 14.sp) }
         Spacer(modifier = Modifier.width(8.dp))
         Box(
             modifier = Modifier
@@ -265,11 +289,7 @@ fun TypingIndicator() {
                 .background(AiBubble)
                 .padding(horizontal = 14.dp, vertical = 12.dp)
         ) {
-            Text(
-                text = "● ● ●",
-                fontSize = 14.sp,
-                color = TextSecondary.copy(alpha = alpha)
-            )
+            Text("● ● ●", fontSize = 14.sp, color = TextSecondary.copy(alpha = dotAlpha))
         }
     }
 }
