@@ -211,6 +211,8 @@ async def chat(request: ChatRequest):
     loop = asyncio.get_event_loop()
     text_response = await loop.run_in_executor(None, invoke_with_rotation, messages)
     reply = text_response.content
+    if isinstance(reply, list):
+        reply = "".join(p.get("text", "") if isinstance(p, dict) else str(p) for p in reply)
 
     save_messages(session_id, request.message, reply)
     return ChatResponse(reply=reply, session_id=session_id, image_url=None)
