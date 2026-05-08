@@ -198,7 +198,7 @@ async def chat(request: ChatRequest):
     docs = db.similarity_search(request.message, k=4)
     context = "\n\n".join([d.page_content for d in docs])
 
-    augmented_user_msg = f"Context:\n{context}\n\nStudent question: {request.message}"
+    augmented_user_msg = f"Reference context (may be partial or unrelated — always answer from your own yoga expertise if the context is insufficient):\n{context}\n\nStudent question: {request.message}"
     session_id = request.session_id or uuid.uuid4().hex[:8]
     history = load_history(session_id)
 
