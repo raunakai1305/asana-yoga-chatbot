@@ -103,7 +103,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         val idx = msgs.indexOfLast { !it.isUser }
                         if (idx >= 0) {
                             msgs[idx] = msgs[idx].copy(
-                                imageUrl = imageResp.image_url,
+                                imageUrl = null,
                                 isImageLoading = false
                             )
                             _messages.value = msgs

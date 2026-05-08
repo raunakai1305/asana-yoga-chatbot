@@ -215,7 +215,7 @@ fun MessageBubble(message: ChatMessage) {
 
         Column(horizontalAlignment = if (isUser) Alignment.End else Alignment.Start) {
             if (!isUser && message.isImageLoading) {
-                val shimmerAlpha by rememberInfiniteTransition(label = "imgShimmer").animateFloat(
+                /*val shimmerAlpha by rememberInfiniteTransition(label = "imgShimmer").animateFloat(
                     initialValue = 0.2f, targetValue = 0.5f,
                     animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
                     label = "shimmerAlpha"
@@ -227,9 +227,9 @@ fun MessageBubble(message: ChatMessage) {
                         .clip(RoundedCornerShape(12.dp))
                         .background(PrimaryPurple.copy(alpha = shimmerAlpha))
                         .padding(bottom = 6.dp)
-                )
+                )*/
             } else {
-                message.imageUrl?.let { url ->
+                /*message.imageUrl?.let { url ->
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(url)
@@ -242,7 +242,7 @@ fun MessageBubble(message: ChatMessage) {
                             .clip(RoundedCornerShape(12.dp))
                             .padding(bottom = 6.dp)
                     )
-                }
+                }*/
             }
             Box(
                 modifier = Modifier

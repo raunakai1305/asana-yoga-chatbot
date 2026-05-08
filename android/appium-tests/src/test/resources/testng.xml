@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Asana Android Suite" verbose="2">
+
+    <test name="Splash Tests">
+        <classes>
+            <class name="com.asana.appium.tests.SplashTest"/>
+        </classes>
+    </test>
+
+    <test name="Chat Tests">
+        <classes>
+            <class name="com.asana.appium.tests.ChatTest"/>
+        </classes>
+    </test>
+
+    <test name="Voice Tests">
+        <classes>
+            <class name="com.asana.appium.tests.VoiceTest"/>
+        </classes>
+    </test>
+
+</suite>
