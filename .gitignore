@@ -1,0 +1,13 @@
+.env
+venv/
+__pycache__/
+*.pyc
+chroma_db/
+android/.gradle/
+android/app/build/
+android/build/
+*.apk
+*.aab
+.DS_Store
+.idea/
+ui-ux-pro-max-skill/
