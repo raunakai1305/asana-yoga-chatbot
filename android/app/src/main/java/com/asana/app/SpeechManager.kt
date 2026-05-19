@@ -19,6 +19,7 @@ class SpeechManager(private val context: Context) {
         tts = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 tts?.language = Locale.US
+                tts?.setSpeechRate(0.75f)
                 isTtsReady = true
             }
         }
@@ -72,6 +73,10 @@ class SpeechManager(private val context: Context) {
             .replace(Regex("\\s{2,}"), " ")              // collapse whitespace
             .trim()
         tts?.speak(clean, TextToSpeech.QUEUE_FLUSH, null, null)
+    }
+
+    fun stopSpeaking() {
+        tts?.stop()
     }
 
     fun destroy() {

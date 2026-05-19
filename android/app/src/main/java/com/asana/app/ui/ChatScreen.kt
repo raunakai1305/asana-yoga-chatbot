@@ -9,6 +9,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -39,7 +41,8 @@ import com.asana.app.ChatViewModel
 fun ChatScreen(
     viewModel: ChatViewModel,
     onMicPressed: () -> Unit,
-    onMicReleased: () -> Unit
+    onMicReleased: () -> Unit,
+    onStopSpeaking: () -> Unit
 ) {
     val messages by viewModel.messages.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -54,6 +57,8 @@ fun ChatScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundCream)
+            .statusBarsPadding()
+            .imePadding()
     ) {
         // Top App Bar
         Box(
@@ -169,24 +174,46 @@ fun ChatScreen(
 
                 // Mic button — hold to speak
                 AnimatedVisibility(visible = inputText.isBlank()) {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .background(AccentGreen)
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onPress = {
-                                        onMicPressed()
-                                        tryAwaitRelease()
-                                        onMicReleased()
-                                    }
-                                )
-                            }
-                            .semantics { contentDescription = "Hold to speak" },
-                        contentAlignment = Alignment.Center
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text("🎤", fontSize = 20.sp)
+                        Box(
+                            modifier = Modifier
+                                .size(84.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    Brush.radialGradient(
+                                        colors = listOf(AccentGreen, Color(0xFF047857))
+                                    )
+                                )
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onPress = {
+                                            onMicPressed()
+                                            tryAwaitRelease()
+                                            onMicReleased()
+                                        }
+                                    )
+                                }
+                                .semantics { contentDescription = "Hold to speak" },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("🎤", fontSize = 36.sp)
+                        }
+
+                        // Stop TTS button — secondary
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFFEF4444).copy(alpha = 0.85f))
+                                .clickable { onStopSpeaking() }
+                                .semantics { contentDescription = "Stop speaking" },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("⏹", fontSize = 18.sp)
+                        }
                     }
                 }
             }

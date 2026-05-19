@@ -17,12 +17,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.absoluteValue
+import kotlin.math.sin
+
+private val ListeningBlue = Color(0xFF3B82F6)
+private val ListeningBlueDark = Color(0xFF1D4ED8)
 
 @Composable
 fun VoiceRecordingScreen(isListening: Boolean) {
     val infiniteTransition = rememberInfiniteTransition(label = "voiceAnim")
 
-    // 3 ripple rings with staggered delays
+    // Pulse rings
     val ring1 by infiniteTransition.animateFloat(
         initialValue = 1f, targetValue = 1.6f,
         animationSpec = infiniteRepeatable(tween(1200, easing = EaseOutCubic), RepeatMode.Restart),
@@ -39,65 +44,107 @@ fun VoiceRecordingScreen(isListening: Boolean) {
         label = "ring3"
     )
 
+    // Waveform animation — single phase drives all 32 bars via sine
+    val wavePhase by infiniteTransition.animateFloat(
+        initialValue = 0f, targetValue = (2 * Math.PI).toFloat(),
+        animationSpec = infiniteRepeatable(tween(1000, easing = LinearEasing), RepeatMode.Restart),
+        label = "wave"
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFF1A0533), Color(0xFF2D1B69))
+                    colors = listOf(Color(0xFF0F172A), Color(0xFF1E1B4B))
                 )
             ),
         contentAlignment = Alignment.Center
     ) {
+        // Background glow
+        Box(
+            modifier = Modifier
+                .size(360.dp)
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            ListeningBlue.copy(alpha = 0.15f),
+                            Color.Transparent
+                        )
+                    ),
+                    CircleShape
+                )
+        )
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             // Ripple rings + mic button
             Box(
-                modifier = Modifier.size(200.dp),
+                modifier = Modifier.size(220.dp),
                 contentAlignment = Alignment.Center
             ) {
-                // Ring 3 (outermost)
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(110.dp)
                         .scale(ring3)
-                        .background(AccentGreen.copy(alpha = 0.1f), CircleShape)
+                        .background(ListeningBlue.copy(alpha = 0.08f), CircleShape)
                 )
-                // Ring 2
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(110.dp)
                         .scale(ring2)
-                        .background(AccentGreen.copy(alpha = 0.15f), CircleShape)
+                        .background(ListeningBlue.copy(alpha = 0.12f), CircleShape)
                 )
-                // Ring 1 (innermost)
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(110.dp)
                         .scale(ring1)
-                        .background(AccentGreen.copy(alpha = 0.2f), CircleShape)
+                        .background(ListeningBlue.copy(alpha = 0.18f), CircleShape)
                 )
 
                 // Mic button
                 Box(
                     modifier = Modifier
-                        .size(96.dp)
+                        .size(104.dp)
                         .background(
                             Brush.radialGradient(
-                                colors = listOf(AccentGreen, Color(0xFF047857))
+                                colors = listOf(ListeningBlue, ListeningBlueDark)
                             ),
                             CircleShape
                         )
                         .semantics { contentDescription = "Listening, release to send" },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("🎤", fontSize = 40.sp)
+                    Text("🎤", fontSize = 44.sp)
                 }
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // Waveform bars (32 bars driven by sine wave)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(3.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.height(64.dp)
+            ) {
+                for (i in 0 until 32) {
+                    val heightFraction = ((sin(wavePhase + i * 0.4f) + 1f) / 2f)
+                    val barHeightDp = (6 + heightFraction * 50).dp
+                    Box(
+                        modifier = Modifier
+                            .width(4.dp)
+                            .height(barHeightDp)
+                            .background(
+                                ListeningBlue.copy(alpha = 0.6f + heightFraction * 0.4f),
+                                CircleShape
+                            )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
 
             Text(
                 text = if (isListening) "Listening..." else "Processing...",
@@ -107,12 +154,12 @@ fun VoiceRecordingScreen(isListening: Boolean) {
                 letterSpacing = 1.sp
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Text(
                 text = "Release to send",
                 fontSize = 14.sp,
-                color = Color.White.copy(alpha = 0.6f),
+                color = Color.White.copy(alpha = 0.5f),
                 textAlign = TextAlign.Center
             )
         }
@@ -121,7 +168,7 @@ fun VoiceRecordingScreen(isListening: Boolean) {
         Text(
             text = "🧘 Asana",
             fontSize = 16.sp,
-            color = Color.White.copy(alpha = 0.7f),
+            color = Color.White.copy(alpha = 0.6f),
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .statusBarsPadding()

@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.*
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import com.asana.app.ui.*
 
 sealed class Screen { object Splash : Screen(); object Chat : Screen(); object Voice : Screen() }
@@ -24,6 +25,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         speechManager = SpeechManager(this)
 
         setContent {
@@ -31,8 +33,13 @@ class MainActivity : ComponentActivity() {
                 var currentScreen by remember { mutableStateOf<Screen>(Screen.Splash) }
                 val messages by viewModel.messages.collectAsState()
 
-                // Auto-speak last AI message
+                // Auto-speak last AI message (skip initial history load)
+                var initialLoadDone by remember { mutableStateOf(false) }
                 LaunchedEffect(messages) {
+                    if (!initialLoadDone) {
+                        initialLoadDone = true
+                        return@LaunchedEffect
+                    }
                     val last = messages.lastOrNull()
                     if (last != null && !last.isUser) {
                         speechManager.speak(last.content)
@@ -58,7 +65,8 @@ class MainActivity : ComponentActivity() {
                         onMicReleased = {
                             speechManager.stopListening()
                             currentScreen = Screen.Chat
-                        }
+                        },
+                        onStopSpeaking = { speechManager.stopSpeaking() }
                     )
                     Screen.Voice -> VoiceRecordingScreen(isListening = true)
                 }

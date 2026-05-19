@@ -11,3 +11,7 @@ android/build/
 .DS_Store
 .idea/
 ui-ux-pro-max-skill/
+backend/sessions.db
+.playwright-mcp/
+android/.agents/
+android/skills-lock.json
